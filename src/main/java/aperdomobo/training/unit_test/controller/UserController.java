@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import aperdomobo.training.unit_test.controller.dto.DtoTransformer;
 import aperdomobo.training.unit_test.controller.dto.UserDto;
+import aperdomobo.training.unit_test.model.User;
+import aperdomobo.training.unit_test.service.ApplicationException;
 import aperdomobo.training.unit_test.service.UserService;
 
 @RestController
@@ -25,8 +28,9 @@ public class UserController {
 	}
 	
 	@RequestMapping(value = "/users", method = RequestMethod.POST)
-	public void save(@RequestBody UserDto request) {
-		
+	public void save(@RequestBody UserDto request) throws ApplicationException {
+		User user = DtoTransformer.toDto(request, User.class);
+		userService.saveUser(user);
 	}
 
 }

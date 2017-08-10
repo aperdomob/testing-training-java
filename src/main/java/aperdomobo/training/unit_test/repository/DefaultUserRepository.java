@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import aperdomobo.training.unit_test.model.User;
 
 @Component
-public class DefaultMovieRepository implements UserRepository {
+public class DefaultUserRepository implements UserRepository {
 
 	private Map<String, User> userByUsername;
 	
