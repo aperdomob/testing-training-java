@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -33,8 +32,7 @@ public class UserServiceTest {
 	@Mock
 	private UsernameService usernameService;
 	
-	@InjectMocks
-	private UserService userService = new DefaultUserService();
+	private UserService userService;
 	
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -42,6 +40,7 @@ public class UserServiceTest {
 	@Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
+        this.userService = new DefaultUserService(userRepository, emailService, passwordService, usernameService);
     }
 	
 	@Test
@@ -137,5 +136,4 @@ public class UserServiceTest {
 		User user = new User("aperdomobo", "MyPassword", "aperdomobo@gmail.com");
 		this.userService.saveUser(user);
 	}
-
 }

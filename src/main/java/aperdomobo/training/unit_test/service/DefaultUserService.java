@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,18 @@ public class DefaultUserService implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	private EmailService emailService;
+	private PasswordService passwordService;
+	private UsernameService usernameService;
 	
 	@Autowired
-	private EmailService emailService;
-
-	@Autowired
-	private PasswordService passwordService;
-
-	@Autowired
-	private UsernameService usernameService;
+	public DefaultUserService(UserRepository userRepository, EmailService emailService, PasswordService passwordService,
+			UsernameService usernameService) {
+		this.userRepository = Objects.requireNonNull(userRepository);
+		this.emailService = Objects.requireNonNull(emailService);
+		this.passwordService = Objects.requireNonNull(passwordService);
+		this.usernameService = Objects.requireNonNull(usernameService);
+	}
 
 	@Override
 	public List<UserDto> findAll() {

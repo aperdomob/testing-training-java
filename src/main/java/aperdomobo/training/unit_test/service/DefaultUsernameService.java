@@ -1,5 +1,7 @@
 package aperdomobo.training.unit_test.service;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +13,7 @@ public class DefaultUsernameService implements UsernameService{
 	
 	@Autowired
 	public DefaultUsernameService(UserRepository userRepository) {
-		this.userRepository = userRepository;
+		this.userRepository = Objects.requireNonNull(userRepository);
 	}
 
 	@Override

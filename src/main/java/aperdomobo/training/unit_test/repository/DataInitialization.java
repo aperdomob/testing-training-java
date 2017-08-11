@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.repository;
 
 import java.text.ParseException;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 
@@ -14,8 +15,8 @@ public class DataInitialization {
 	private final UserRepository userRepository;
 	
 	@Autowired
-	public DataInitialization(UserRepository userRepository) {
-		this.userRepository = userRepository;
+	public DataInitialization(final UserRepository userRepository) {
+		this.userRepository = Objects.requireNonNull(userRepository);
 	}
 	
 	@PostConstruct
