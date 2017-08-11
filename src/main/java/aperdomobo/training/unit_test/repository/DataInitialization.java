@@ -11,9 +11,12 @@ import aperdomobo.training.unit_test.model.User;
 
 @Component
 public class DataInitialization {
+	private final UserRepository userRepository;
 	
 	@Autowired
-	private UserRepository userRepository;
+	public DataInitialization(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 	
 	@PostConstruct
 	public void init() throws ParseException {

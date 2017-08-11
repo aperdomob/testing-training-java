@@ -7,9 +7,12 @@ import aperdomobo.training.unit_test.repository.UserRepository;
 
 @Service
 public class DefaultUsernameService implements UsernameService{
-
+	private final UserRepository userRepository;
+	
 	@Autowired
-	private UserRepository userRepository;
+	public DefaultUsernameService(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	public boolean isUsedUsername(String username) {

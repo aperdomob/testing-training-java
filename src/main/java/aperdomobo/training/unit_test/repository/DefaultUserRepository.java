@@ -11,7 +11,15 @@ import aperdomobo.training.unit_test.model.User;
 @Component
 public class DefaultUserRepository implements UserRepository {
 
-	private Map<String, User> userByUsername;
+	private final Map<String, User> userByUsername;
+	
+	public DefaultUserRepository() {
+		this(new HashMap<String, User>());
+	}
+	
+	DefaultUserRepository(Map<String, User> userByUsername) {
+		this.userByUsername = userByUsername;
+	}
 	
 	@Override
 	public Collection<User> findAll() {
@@ -20,10 +28,6 @@ public class DefaultUserRepository implements UserRepository {
 
 	@Override
 	public void add(User user) {
-		if (this.userByUsername == null) {
-			this.userByUsername = new HashMap<String, User>();
-		}
-		
 		userByUsername.put(user.getUsername(), user);
 	}
 

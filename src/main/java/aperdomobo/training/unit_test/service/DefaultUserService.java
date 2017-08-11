@@ -32,7 +32,7 @@ public class DefaultUserService implements UserService {
 
 	@Override
 	public void saveUser(User user) throws ApplicationException {
-		if (this.passwordService.isValidPassword(user.getPassword())) {
+		if (!this.passwordService.isValidPassword(user.getPassword())) {
 			throw new ApplicationException("The password is invalid");
 		}
 
@@ -48,7 +48,7 @@ public class DefaultUserService implements UserService {
 			throw new ApplicationException("the email is already used");
 		}
 
-		if (this.emailService.isValidEmail(user.getEmail())) {
+		if (!this.emailService.isValidEmail(user.getEmail())) {
 			throw new ApplicationException("the email isn't valid");
 		}
 

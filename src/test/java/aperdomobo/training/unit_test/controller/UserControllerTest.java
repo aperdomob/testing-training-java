@@ -19,7 +19,7 @@ public class UserControllerTest {
 	private UserService userService;
 
 	@InjectMocks
-	private UserController controller = new UserController();
+	private UserController controller = new UserController();;
 
 	@Before
     public void initMocks(){

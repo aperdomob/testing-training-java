@@ -18,10 +18,9 @@ import aperdomobo.training.unit_test.service.UserService;
 @RequestMapping("/testing-training")
 public class UserController {
 
-	
 	@Autowired
 	private UserService userService;
-
+		
 	@RequestMapping("/users")
 	public List<UserDto> findAll() {
 		return userService.findAll();
