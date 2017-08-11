@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.service;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,16 +15,20 @@ import aperdomobo.training.unit_test.model.User;
 import aperdomobo.training.unit_test.repository.UserRepository;
 
 @Service
-public class DefaultEmailService implements EmailService {
-
-	@Autowired
-	InternetAddress emailAddress;
-
-	@Autowired
-	private UserRepository userRepository;
+class DefaultEmailService implements EmailService {
 
 	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
 			.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+
+	private final InternetAddress emailAddress;
+
+	private final UserRepository userRepository;
+
+	@Autowired
+	public DefaultEmailService(final UserRepository userRepository) {
+        this.userRepository = Objects.requireNonNull(userRepository);
+        this.emailAddress = new InternetAddress();
+	}
 
 	@Override
 	public boolean isValidEmailFormat(String email) {
