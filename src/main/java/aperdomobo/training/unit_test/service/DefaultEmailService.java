@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.service;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,15 +17,22 @@ import aperdomobo.training.unit_test.repository.UserRepository;
 @Service
 public class DefaultEmailService implements EmailService {
 
-	@Autowired
-	InternetAddress emailAddress;
-
-	@Autowired
-	private UserRepository userRepository;
-
 	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
 			.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
+	private final InternetAddress emailAddress;
+	private final UserRepository userRepository;
+	
+	@Autowired
+	public DefaultEmailService(final UserRepository userRepository) {
+		this(userRepository, new InternetAddress());
+	}
+	
+	public DefaultEmailService(final UserRepository userRepository, final InternetAddress emailAddress) {
+		this.userRepository = Objects.requireNonNull(userRepository);
+		this.emailAddress = emailAddress;
+	}
+	
 	@Override
 	public boolean isValidEmailFormat(String email) {
 		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(email);
@@ -37,8 +45,7 @@ public class DefaultEmailService implements EmailService {
 		boolean result = true;
 		
 		try {
-			InternetAddress emailAddr = new InternetAddress(email);
-			emailAddr.validate();
+			emailAddress.validate();
 		} catch (AddressException ex) {
 			result = false;
 		}
@@ -49,7 +56,6 @@ public class DefaultEmailService implements EmailService {
 	@Override
 	public boolean isUsedEmail(String email) {
 		Collection<User> users = userRepository.findAll();
-		return users.stream().anyMatch(userEmail -> email.equals(userEmail));
+		return users.stream().anyMatch(user -> email.equals(user.getEmail()));
 	}
-
 }

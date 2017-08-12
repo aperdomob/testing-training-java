@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.repository;
 
 import java.text.ParseException;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 
@@ -11,9 +12,12 @@ import aperdomobo.training.unit_test.model.User;
 
 @Component
 public class DataInitialization {
+	private final UserRepository userRepository;
 	
 	@Autowired
-	private UserRepository userRepository;
+	public DataInitialization(final UserRepository userRepository) {
+		this.userRepository = Objects.requireNonNull(userRepository);
+	}
 	
 	@PostConstruct
 	public void init() throws ParseException {

@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,10 +19,13 @@ import aperdomobo.training.unit_test.service.UserService;
 @RequestMapping("/testing-training")
 public class UserController {
 
+	private final UserService userService;
 	
 	@Autowired
-	private UserService userService;
-
+	public UserController(final UserService userService) {
+		this.userService = Objects.requireNonNull(userService);
+	}
+		
 	@RequestMapping("/users")
 	public List<UserDto> findAll() {
 		return userService.findAll();

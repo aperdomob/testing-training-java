@@ -4,7 +4,6 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -18,12 +17,12 @@ public class UserControllerTest {
 	@Mock
 	private UserService userService;
 
-	@InjectMocks
-	private UserController controller = new UserController();
+	private UserController controller;
 
 	@Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
+        this.controller = new UserController(userService);
     }
 	
 	@Test

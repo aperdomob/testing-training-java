@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,18 @@ public class DefaultUserService implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	private EmailService emailService;
+	private PasswordService passwordService;
+	private UsernameService usernameService;
 	
 	@Autowired
-	private EmailService emailService;
-
-	@Autowired
-	private PasswordService passwordService;
-
-	@Autowired
-	private UsernameService usernameService;
+	public DefaultUserService(UserRepository userRepository, EmailService emailService, PasswordService passwordService,
+			UsernameService usernameService) {
+		this.userRepository = Objects.requireNonNull(userRepository);
+		this.emailService = Objects.requireNonNull(emailService);
+		this.passwordService = Objects.requireNonNull(passwordService);
+		this.usernameService = Objects.requireNonNull(usernameService);
+	}
 
 	@Override
 	public List<UserDto> findAll() {
@@ -32,7 +36,7 @@ public class DefaultUserService implements UserService {
 
 	@Override
 	public void saveUser(User user) throws ApplicationException {
-		if (this.passwordService.isValidPassword(user.getPassword())) {
+		if (!this.passwordService.isValidPassword(user.getPassword())) {
 			throw new ApplicationException("The password is invalid");
 		}
 
@@ -48,7 +52,7 @@ public class DefaultUserService implements UserService {
 			throw new ApplicationException("the email is already used");
 		}
 
-		if (this.emailService.isValidEmail(user.getEmail())) {
+		if (!this.emailService.isValidEmail(user.getEmail())) {
 			throw new ApplicationException("the email isn't valid");
 		}
 
