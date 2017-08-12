@@ -17,7 +17,7 @@ public class DefaultUserRepository implements UserRepository {
 		this(new HashMap<String, User>());
 	}
 	
-	DefaultUserRepository(Map<String, User> userByUsername) {
+	public DefaultUserRepository(Map<String, User> userByUsername) {
 		this.userByUsername = userByUsername;
 	}
 	

@@ -15,7 +15,7 @@ import aperdomobo.training.unit_test.model.User;
 import aperdomobo.training.unit_test.repository.UserRepository;
 
 @Service
-class DefaultEmailService implements EmailService {
+public class DefaultEmailService implements EmailService {
 
 	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
 			.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -25,9 +25,13 @@ class DefaultEmailService implements EmailService {
 	
 	@Autowired
 	public DefaultEmailService(final UserRepository userRepository) {
+		this(userRepository, new InternetAddress());
+	}
+	
+	public DefaultEmailService(final UserRepository userRepository, final InternetAddress emailAddress) {
 		this.userRepository = Objects.requireNonNull(userRepository);
-		this.emailAddress = new InternetAddress();
-	}	
+		this.emailAddress = emailAddress;
+	}
 	
 	@Override
 	public boolean isValidEmailFormat(String email) {
@@ -54,5 +58,4 @@ class DefaultEmailService implements EmailService {
 		Collection<User> users = userRepository.findAll();
 		return users.stream().anyMatch(user -> email.equals(user.getEmail()));
 	}
-
 }

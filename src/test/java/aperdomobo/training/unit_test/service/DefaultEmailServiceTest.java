@@ -2,13 +2,15 @@ package aperdomobo.training.unit_test.service;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.validation.constraints.AssertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,42 +35,48 @@ public class DefaultEmailServiceTest {
 	@Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
-        emailService  = new DefaultEmailService(userRepository);
+        emailService  = new DefaultEmailService(userRepository, emailAddress);
 	}
 	
 	@Test
-	public void isValidEmailFormatWithoutUpperTest() {
-		boolean isValid = this.emailService.isValidEmailFormat("abcd1234");
+	public void isValidEmailFormatWithoutAtTest() {
+		boolean isValid = this.emailService.isValidEmailFormat("aperdomobogmail.com");
 		assertFalse(isValid);
 	}
 	
 	@Test
-	public void isValidEmailFormatWithoutLowerTest() {
-		boolean isValid = this.emailService.isValidEmailFormat("1234ABCD");
+	public void isValidEmailFormatWithoutAccountTest() {
+		boolean isValid = this.emailService.isValidEmailFormat("@gmail.com");
 		assertFalse(isValid);
 	}
 
 	@Test
-	public void isValidEmailFormatWithoutNumbersTest() {
-		boolean isValid = this.emailService.isValidEmailFormat("ABCDefgh");
+	public void isValidEmailFormatWithoutDomainTest() {
+		boolean isValid = this.emailService.isValidEmailFormat("aperdomobo@.com");
 		assertFalse(isValid);
 	}
 
 	@Test
-	public void isValidEmailFormatInEmptyStringTest() {
+	public void isValidEmailFormatWithoutExtensionTest() {
+		boolean isValid = this.emailService.isValidEmailFormat("aperdomobo@gmail");
+		assertFalse(isValid);
+	}
+
+	@Test
+	public void isValidEmailFormatWithEmptyStringTest() {
 		boolean isValid = this.emailService.isValidEmailFormat("");
 		assertFalse(isValid);
 	}
-
+	
 	@Test
-	public void isValidEmailFormatWithLessSevenCharactersTest() {
-		boolean isValid = this.emailService.isValidEmailFormat("Ab7");
-		assertFalse(isValid);
+	public void isValidEmailFormatTest() {
+		boolean isValid = this.emailService.isValidEmailFormat("aperdomobo@gmail.com");
+		assertTrue(isValid);
 	}
 
 	@Test
-	public void isValidEmailFormatWithValidPassowrd() {
-		boolean isValid = this.emailService.isValidEmailFormat("aB1cD2Ef3");
+	public void isValidEmailFormatWithSubdomainTest() {
+		boolean isValid = this.emailService.isValidEmailFormat("aperdomobo@gmail.com.co");
 		assertTrue(isValid);
 	}
 	
@@ -97,7 +105,20 @@ public class DefaultEmailServiceTest {
 	}
 	
 	@Test
-	public void isValidEmailTest() {
+	public void isValidEmailTest() throws AddressException {
+		boolean isValidEmail = this.emailService.isValidEmail("aperdomobo@gmail.com");
 		
+		assertTrue(isValidEmail);
+		verify(this.emailAddress).setAddress("aperdomobo@gmail.com");
+		verify(this.emailAddress).validate();
+	}
+	
+	@Test
+	public void isNotValidEmailTest() throws AddressException {
+		doThrow(AddressException.class).when(this.emailAddress).validate();
+		
+		boolean isValidEmail = this.emailService.isValidEmail("aperdomobo@gmail.com");
+		
+		assertFalse(isValidEmail);
 	}
 }
