@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -36,7 +37,6 @@ public class CreateUserTest {
 	private UserController entityToTest;
 	
 	private UserService userService;
-	private UserRepository userRepository;
 	private EmailService emailService;
 	private PasswordService passwordService;
 	private UsernameService usernameService;
@@ -50,11 +50,13 @@ public class CreateUserTest {
 	@Mock
 	private InternetAddress emailAddress;
 	
+	@InjectMocks
+	private UserRepository userRepository = new DefaultUserRepository();
+	
 	@Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
         
-        this.userRepository = new DefaultUserRepository(this.userByUsername);
         this.emailService = new DefaultEmailService(this.userRepository, this.emailAddress);
         this.passwordService = new DefaultPasswordService();
         this.usernameService = new DefaultUsernameService(this.userRepository);
