@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -30,7 +31,6 @@ public class GetAllUsersTest {
 	private UserController entityToTest;
 	
 	private UserService userService;
-	private UserRepository userRepository;
 	private EmailService emailService;
 	private PasswordService passwordService;
 	private UsernameService usernameService;
@@ -38,11 +38,13 @@ public class GetAllUsersTest {
 	@Mock
 	private Map<String, User> userByUsername;
 
+	@InjectMocks
+	private UserRepository userRepository = new DefaultUserRepository();
+
 	@Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
         
-        this.userRepository = new DefaultUserRepository(this.userByUsername);
         this.emailService = new DefaultEmailService(this.userRepository);
         this.passwordService = new DefaultPasswordService();
         this.usernameService = new DefaultUsernameService(this.userRepository);

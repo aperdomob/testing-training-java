@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -16,12 +17,12 @@ public class DefaultUserRepositoryTest {
 	@Mock
 	private Map<String, User> userByUsername;
 	
-	private UserRepository userRepository;
+	@InjectMocks
+	private UserRepository userRepository = new DefaultUserRepository();
 	
 	@Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        userRepository = new DefaultUserRepository(userByUsername);
 	}
 	
 	@Test

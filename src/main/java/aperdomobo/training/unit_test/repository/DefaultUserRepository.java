@@ -11,14 +11,10 @@ import aperdomobo.training.unit_test.model.User;
 @Component
 public class DefaultUserRepository implements UserRepository {
 
-	private final Map<String, User> userByUsername;
+	private Map<String, User> userByUsername;
 	
 	public DefaultUserRepository() {
-		this(new HashMap<String, User>());
-	}
-	
-	public DefaultUserRepository(Map<String, User> userByUsername) {
-		this.userByUsername = userByUsername;
+		this.userByUsername = new HashMap<String, User>();
 	}
 	
 	@Override
