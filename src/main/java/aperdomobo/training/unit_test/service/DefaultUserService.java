@@ -14,7 +14,6 @@ import aperdomobo.training.unit_test.repository.UserRepository;
 @Service
 public class DefaultUserService implements UserService {
 
-	@Autowired
 	private UserRepository userRepository;
 	private EmailService emailService;
 	private PasswordService passwordService;
