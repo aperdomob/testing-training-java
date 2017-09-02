@@ -22,7 +22,8 @@ public class DefaultPasswordServiceTest {
 			{"EFGH1234", false},
 			{"1234abcd", false},
 			{"abCD12", false},
-			{"a1CDb23Ec", true}
+			{"a1CDb23Ec", true},
+			{"abC.D1,2", false},
 		});
 	}
 	

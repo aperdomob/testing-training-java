@@ -11,6 +11,13 @@ public class User {
 
 	}
 
+	/**
+	 * Constructor with parameters
+	 *
+	 * @param username
+	 * @param password
+	 * @param email
+	 */
 	public User(String username, String password, String email) {
 		this.username = username;
 		this.password = password;

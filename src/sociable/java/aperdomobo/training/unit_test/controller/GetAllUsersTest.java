@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -13,6 +14,9 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import aperdomobo.training.unit_test.controller.dto.UserDto;
 import aperdomobo.training.unit_test.model.User;
@@ -28,20 +32,25 @@ import aperdomobo.training.unit_test.service.UserService;
 import aperdomobo.training.unit_test.service.UsernameService;
 
 public class GetAllUsersTest {
-	private UserController entityToTest;
-	
-	private UserService userService;
-	private EmailService emailService;
-	private PasswordService passwordService;
-	private UsernameService usernameService;
+  private UserController entityToTest;
+  
+  private UserService userService;
+  private EmailService emailService;
+  private PasswordService passwordService;
+  private UsernameService usernameService;
+  
+  private DatabaseReference usersReference;
+  private DatabaseReference reference;
+  private FirebaseDatabase database =  mockFirebaseDataBase();
+  
 
-	@Mock
-	private Map<String, User> userByUsername;
+  @Mock
+  private Map<String, User> userByUsername;
 
-	@InjectMocks
-	private UserRepository userRepository = new DefaultUserRepository();
+  @InjectMocks
+  private UserRepository userRepository = new DefaultUserRepository(database);
 
-	@Before
+  @Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
         
@@ -52,24 +61,35 @@ public class GetAllUsersTest {
 
         this.entityToTest = new UserController(userService);
     }
-	
-	@Test
-	public void getAllUsers() {
-		Collection<User> users = new ArrayList<User>();
-		users.add(new User("alejandro", "MyPassword", "alejandro@gmail.com"));
-		users.add(new User("samuel", "MyOtherPassword", "samuel@gmail.com"));
-		
-		when(this.userByUsername.values()).thenReturn(users);
-		
-		List<UserDto> usersDto = this.entityToTest.findAll();
+  
+  private FirebaseDatabase mockFirebaseDataBase() {
+    FirebaseDatabase database = mock(FirebaseDatabase.class);
+    this.reference = mock(DatabaseReference.class);
+    this.usersReference = mock(DatabaseReference.class);
 
-		assertEquals(2, usersDto.size());
-		assertEquals("alejandro", usersDto.get(0).getUsername());
-		assertEquals("MyPassword", usersDto.get(0).getPassword());
-		assertEquals("alejandro@gmail.com", usersDto.get(0).getEmail());
-		
-		assertEquals("samuel", usersDto.get(1).getUsername());
-		assertEquals("MyOtherPassword", usersDto.get(1).getPassword());
-		assertEquals("samuel@gmail.com", usersDto.get(1).getEmail());
-	}
+    when(database.getReference()).thenReturn(this.reference);
+    when(this.reference.child("users")).thenReturn(this.usersReference);
+
+    return database;
+  }
+
+  @Test
+  public void getAllUsers() {
+    Collection<User> users = new ArrayList<User>();
+    users.add(new User("alejandro", "MyPassword", "alejandro@gmail.com"));
+    users.add(new User("samuel", "MyOtherPassword", "samuel@gmail.com"));
+    
+    when(this.userByUsername.values()).thenReturn(users);
+    
+    List<UserDto> usersDto = this.entityToTest.findAll();
+
+    assertEquals(2, usersDto.size());
+    assertEquals("alejandro", usersDto.get(0).getUsername());
+    assertEquals("MyPassword", usersDto.get(0).getPassword());
+    assertEquals("alejandro@gmail.com", usersDto.get(0).getEmail());
+    
+    assertEquals("samuel", usersDto.get(1).getUsername());
+    assertEquals("MyOtherPassword", usersDto.get(1).getPassword());
+    assertEquals("samuel@gmail.com", usersDto.get(1).getEmail());
+  }
 }

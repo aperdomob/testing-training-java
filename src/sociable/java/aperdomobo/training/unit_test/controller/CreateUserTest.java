@@ -1,6 +1,7 @@
 package aperdomobo.training.unit_test.controller;
 
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import aperdomobo.training.unit_test.controller.dto.UserDto;
 import aperdomobo.training.unit_test.model.User;
 import aperdomobo.training.unit_test.repository.DefaultUserRepository;
@@ -34,26 +38,30 @@ import aperdomobo.training.unit_test.service.UserService;
 import aperdomobo.training.unit_test.service.UsernameService;
 
 public class CreateUserTest {
-	private UserController entityToTest;
-	
-	private UserService userService;
-	private EmailService emailService;
-	private PasswordService passwordService;
-	private UsernameService usernameService;
+  private UserController entityToTest;
+  
+  private UserService userService;
+  private EmailService emailService;
+  private PasswordService passwordService;
+  private UsernameService usernameService;
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
+  private DatabaseReference usersReference;
+  private DatabaseReference reference;
+  private FirebaseDatabase database =  mockFirebaseDataBase();
 
-	@Mock
-	private Map<String, User> userByUsername;
-	
-	@Mock
-	private InternetAddress emailAddress;
-	
-	@InjectMocks
-	private UserRepository userRepository = new DefaultUserRepository();
-	
-	@Before
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Mock
+  private Map<String, User> userByUsername;
+  
+  @Mock
+  private InternetAddress emailAddress;
+  
+  @InjectMocks
+  private UserRepository userRepository = new DefaultUserRepository(database);
+  
+  @Before
     public void initMocks(){
         MockitoAnnotations.initMocks(this);
         
@@ -65,130 +73,144 @@ public class CreateUserTest {
         this.entityToTest = new UserController(userService);
     }
 
-	
-	@Test 
-	public void createUser() throws ApplicationException {
-		UserDto userDto = new UserDto();
-		userDto.setEmail("aperdomobo@gmail.com");
-		userDto.setPassword("abcDEF12");
-		userDto.setUsername("aperdomobo");
-		
-		this.entityToTest.save(userDto);
-		
-		User user = new User("aperdomobo", "abcDEF12", "aperdomobo@gmail.com");
-		verify(this.userByUsername).put("aperdomobo", user);
-	}
+  private FirebaseDatabase mockFirebaseDataBase() {
+    FirebaseDatabase database = mock(FirebaseDatabase.class);
+    this.reference = mock(DatabaseReference.class);
+    this.usersReference = mock(DatabaseReference.class);
 
-	@Test 
-	public void createUserWithPasswordWithSubDomain() throws ApplicationException {
-		UserDto userDto = new UserDto();
-		userDto.setEmail("aperdomobo@gmail.com.co");
-		userDto.setPassword("abcDEF12");
-		userDto.setUsername("aperdomobo");
-		
-		this.entityToTest.save(userDto);
-		
-		User user = new User("aperdomobo", "abcDEF12", "aperdomobo@gmail.com.co");
-		verify(this.userByUsername).put("aperdomobo", user);
-	}
+    when(database.getReference()).thenReturn(this.reference);
+    when(this.reference.child("users")).thenReturn(this.usersReference);
 
-	@Test
-	public void passwordWithoutNumbersTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The password is invalid");
-		
-		User user = new User("aperdomobo", "MyPassword", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
+    return database;
+  }
+  
+  @Test 
+  public void createUser() throws ApplicationException {
+    UserDto userDto = new UserDto();
+    userDto.setEmail("aperdomobo@gmail.com");
+    userDto.setPassword("abcDEF12");
+    userDto.setUsername("aperdomobo");
+    
+    DatabaseReference userReference = mock(DatabaseReference.class);
+    when(this.usersReference.child("aperdomobo")).thenReturn(userReference);
+    this.entityToTest.save(userDto);
+    
+    User user = new User("aperdomobo", "abcDEF12", "aperdomobo@gmail.com");
+    verify(userReference).setValue(user);
+  }
 
-	@Test
-	public void passwordWithoutUppersTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The password is invalid");
-		
-		User user = new User("aperdomobo", "myp4ssw0rd", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
+  @Test 
+  public void createUserWithPasswordWithSubDomain() throws ApplicationException {
+    UserDto userDto = new UserDto();
+    userDto.setEmail("aperdomobo@gmail.com.co");
+    userDto.setPassword("abcDEF12");
+    userDto.setUsername("aperdomobo");
+    
+    DatabaseReference userReference = mock(DatabaseReference.class);
+    when(this.usersReference.child("aperdomobo")).thenReturn(userReference);
+    this.entityToTest.save(userDto);
+    
+    User user = new User("aperdomobo", "abcDEF12", "aperdomobo@gmail.com.co");
+    verify(userReference).setValue(user);
+  }
 
-	@Test
-	public void passwordWithoutLowersTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The password is invalid");
-		
-		User user = new User("aperdomobo", "MYP4SSW0RD", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void passwordWithoutNumbersTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The password is invalid");
+    
+    User user = new User("aperdomobo", "MyPassword", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
 
-	@Test
-	public void passwordWithSevenCharatersTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The password is invalid");
-		
-		User user = new User("aperdomobo", "MyP4ssw", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void passwordWithoutUppersTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The password is invalid");
+    
+    User user = new User("aperdomobo", "myp4ssw0rd", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
 
-	@Test
-	public void emailWithoutPreffixTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The email format is invalid");
-		
-		User user = new User("aperdomobo", "MyP4ssw0rd", "@gmail.com");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void passwordWithoutLowersTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The password is invalid");
+    
+    User user = new User("aperdomobo", "MYP4SSW0RD", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
 
-	@Test
-	public void emailWithoutDomainTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The email format is invalid");
-		
-		User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@.com");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void passwordWithSevenCharatersTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The password is invalid");
+    
+    User user = new User("aperdomobo", "MyP4ssw", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
 
-	@Test
-	public void emailWithoutExtensionTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("The email format is invalid");
-		
-		User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void emailWithoutPreffixTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The email format is invalid");
+    
+    User user = new User("aperdomobo", "MyP4ssw0rd", "@gmail.com");
+    this.userService.saveUser(user);
+  }
 
-	@Test
-	public void usernameIsAlreadyUsedTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("the username is already used");
-		
-		when(this.userByUsername.containsKey("aperdomobo")).thenReturn(true);
-		
-		User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void emailWithoutDomainTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The email format is invalid");
+    
+    User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@.com");
+    this.userService.saveUser(user);
+  }
 
-	@Test
-	public void emailIsAlreadyUsedTest() throws ApplicationException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("the email is already used");
-		
-		Collection<User> users = new ArrayList<User>();
-		users.add(new User("aperdomobo", "MyPassword", "aperdomobo@gmail.com"));
-		users.add(new User("kenan.samuel", "MyOtherPassword", "kenan.samuel@gmail.com"));
-		
-		when(this.userByUsername.values()).thenReturn(users);
-		
-		User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
-	
-	@Test
-	public void emailIsNotValidMessageTest() throws ApplicationException, AddressException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("the email isn't valid");
-		
-		doThrow(AddressException.class).when(this.emailAddress).validate();
-		
-		User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail.com");
-		this.userService.saveUser(user);
-	}
+  @Test
+  public void emailWithoutExtensionTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("The email format is invalid");
+    
+    User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail");
+    this.userService.saveUser(user);
+  }
+
+  @Test
+  public void usernameIsAlreadyUsedTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("the username is already used");
+    
+    when(this.userByUsername.containsKey("aperdomobo")).thenReturn(true);
+    
+    User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
+
+  @Test
+  public void emailIsAlreadyUsedTest() throws ApplicationException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("the email is already used");
+    
+    Collection<User> users = new ArrayList<User>();
+    users.add(new User("aperdomobo", "MyPassword", "aperdomobo@gmail.com"));
+    users.add(new User("kenan.samuel", "MyOtherPassword", "kenan.samuel@gmail.com"));
+    
+    when(this.userByUsername.values()).thenReturn(users);
+    
+    User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
+  
+  @Test
+  public void emailIsNotValidMessageTest() throws ApplicationException, AddressException {
+    expectedException.expect(ApplicationException.class);
+    expectedException.expectMessage("the email isn't valid");
+    
+    doThrow(AddressException.class).when(this.emailAddress).validate();
+    
+    User user = new User("aperdomobo", "MyP4ssw0rd", "aperdomobo@gmail.com");
+    this.userService.saveUser(user);
+  }
 }
